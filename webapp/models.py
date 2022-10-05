@@ -45,7 +45,6 @@ class Order(models.Model):
 
     def get_total(self):
         total = self.order_products.aggregate(total=Sum(F("qty") * F("product__price")))
-        print(total)
         return total["total"]
 
     class Meta:

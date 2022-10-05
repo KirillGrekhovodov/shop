@@ -1,3 +1,4 @@
+from django.db.models import F, DecimalField, ExpressionWrapper
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -45,7 +46,9 @@ class CartView(TemplateView):
             product_total = qty * product.price
             total += product_total
             products.append({"product": product, "qty": qty, "product_total": product_total})
-        # products = Product.objects.filter(id__in=cart.keys()).annotate(total=F("price") * cart["pk"])
+        # products = Product.objects.filter(id__in=cart.keys()).annotate(
+        #     total=ExpressionWrapper(F("price") * cart.get(F("pk")), output_field=DecimalField()))
+
         context['cart'] = products
         context['total'] = total
         context['form'] = OrderForm()

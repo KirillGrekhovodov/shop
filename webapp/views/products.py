@@ -1,3 +1,6 @@
+from http import HTTPStatus
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, DetailView, CreateView
 
@@ -24,10 +27,15 @@ class ProductView(DetailView):
     queryset = Product.objects.filter(amount__gt=0)
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'product/product_create.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        if context.get("form").errors:
+            response_kwargs["status"] = HTTPStatus.BAD_REQUEST
+        return super().render_to_response(context, **response_kwargs)
 
     def get_success_url(self):
         return reverse('webapp:product_view', kwargs={'pk': self.object.pk})
