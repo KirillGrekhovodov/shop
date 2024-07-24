@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Название</th>
+            <th scope="col">Цена</th>
+            <th scope="col">Количество</th>
+            <th scope="col">Сумма</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for cart in cart_list %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ cart.product.title }}</td>
+                <td>{{ cart.product.price }}</td>
+                <td>{{ cart.qty }}</td>
+                <td>{{ cart.get_total_price }}</td>
+                <td><a href="{% url "webapp:delete_from_cart" cart.pk %}">Удалить полностью</a></td>
+            <td>
+                <form action="{% url "webapp:delete_from_cart_piece_by_piece" cart.pk %}" method="post">
+                    {% csrf_token %}
+                    <input type="number" name="qty">
+                    <button>Удалить</button>
+                </form>
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <h2>Всего: {{ total|default:0 }}</h2>
+    {% url "webapp:order_create" as url_path %}
+    {% include "partial/form.html" with button_text="Заказать" url_path=url_path %}
+{% endblock %}

@@ -16,5 +16,5 @@
         <p class="card-text">{{ product.description }}</p>
         <p class="card-text">Категория {{ product.category.title }}</p>
     </div>
-
+    {% include "partial/cart_add_form.html" %}
 {% endblock %}

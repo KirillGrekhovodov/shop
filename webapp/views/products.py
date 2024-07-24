@@ -38,7 +38,7 @@ class ProductListView(ListView):
         return None
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(amount__gt=0)
         if self.search_value:
             queryset = queryset.filter(title__icontains=self.search_value)
         queryset = queryset.order_by("category__title", "title")
