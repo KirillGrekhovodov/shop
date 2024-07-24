@@ -1,0 +1,96 @@
+[
+{
+    "model": "webapp.category",
+    "pk": 1,
+    "fields": {
+        "title": "Игрушки"
+    }
+},
+{
+    "model": "webapp.category",
+    "pk": 2,
+    "fields": {
+        "title": "Мыломоющие средства"
+    }
+},
+{
+    "model": "webapp.category",
+    "pk": 3,
+    "fields": {
+        "title": "Косметика"
+    }
+},
+{
+    "model": "webapp.category",
+    "pk": 4,
+    "fields": {
+        "title": "Напитки"
+    }
+},
+{
+    "model": "webapp.product",
+    "pk": 1,
+    "fields": {
+        "title": "Минеральная вода",
+        "description": "лучшая минеральная вода",
+        "amount": 5,
+        "price": "50.00",
+        "category": 4
+    }
+},
+{
+    "model": "webapp.product",
+    "pk": 2,
+    "fields": {
+        "title": "Плюшевый мишка",
+        "description": "натуральные материалы",
+        "amount": 10,
+        "price": "200.00",
+        "category": 1
+    }
+},
+{
+    "model": "webapp.product",
+    "pk": 3,
+    "fields": {
+        "title": "Тушь",
+        "description": "и на ваших ресницах можно будет улететь на луну",
+        "amount": 7,
+        "price": "500.00",
+        "category": 3
+    }
+},
+{
+    "model": "webapp.product",
+    "pk": 4,
+    "fields": {
+        "title": "Пиво",
+        "description": "без слов",
+        "amount": 50,
+        "price": "110.00",
+        "category": 4
+    }
+},
+{
+    "model": "webapp.product",
+    "pk": 5,
+    "fields": {
+        "title": "Гель для мытья посуды",
+        "description": "капля на тонну посуды",
+        "amount": 3,
+        "price": "250.00",
+        "category": 2
+    }
+},
+{
+    "model": "webapp.product",
+    "pk": 6,
+    "fields": {
+        "title": "Машинка",
+        "description": "обгонит даже настоящую",
+        "amount": 6,
+        "price": "300.00",
+        "category": 1
+    }
+}
+]
