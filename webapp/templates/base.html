@@ -28,6 +28,28 @@
                 {% block link %}
 
                 {% endblock %}
+                {% if not request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page"
+                           href="{% url 'accounts:login' %}?next={{ request.get_full_path }}">Войти</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page"
+                           href="{% url 'accounts:register' %}?next={{ request.get_full_path }}">Регистрация</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <p class="nav-link">Здравствуйте <a
+                                href="{% url "accounts:profile" request.user.pk %}">{{ request.user.username }}</a></p>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'accounts:logout' %}?next={{ request.get_full_path }}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link">Выйти</button>
+                        </form>
+                    </li>
+
+                {% endif %}
 
             </ul>
         </div>
