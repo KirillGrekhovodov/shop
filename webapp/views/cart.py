@@ -1,39 +1,39 @@
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, ListView, DeleteView
+from django.views import View
+from django.views.generic import CreateView, ListView, DeleteView, TemplateView
 
 from webapp.forms import CartForm, OrderForm
-from webapp.models import Cart, Product
+from webapp.models import Product
 
 
-class CartAddView(CreateView):
-    model = Cart
-    form_class = CartForm
-
-    def form_invalid(self, form):
-        return HttpResponseBadRequest(f"Некорректное значение")
-
-    def form_valid(self, form):
+class CartAddView(View):
+    def post(self, request, *args, **kwargs):
+        # self.request.session['cart'] = {"1": 2, "2": 3, "3": 4, "4": 5}
         product = get_object_or_404(Product, pk=self.kwargs['pk'])
-        qty = form.cleaned_data['qty']
+        form = CartForm(request.POST)
+        if form.is_valid():
+            qty = form.cleaned_data['qty']
+        else:
+            return HttpResponseBadRequest(f"Некорректное значение")
 
-        try:
-            cart = Cart.objects.get(product=product)
-            full_qty = cart.qty + qty
-        except Cart.DoesNotExist:
+        cart = self.request.session.get('cart', {})
+
+        if str(product.pk) in cart:
+            full_qty = cart[str(product.pk)] + qty
+        else:
             full_qty = qty
 
         if full_qty > product.amount:
             return HttpResponseBadRequest(f"Количество товара {product.title} на складе всего {product.amount} щтук")
 
-        cart_product, is_created = Cart.objects.get_or_create(product=product)
-        if is_created:
-            cart_product.qty = qty
+        if str(product.pk) not in cart:
+            cart[str(product.pk)] = qty
         else:
-            cart_product.qty += qty
-        cart_product.save()
+            cart[str(product.pk)] += qty
 
+        self.request.session['cart'] = cart
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -43,38 +43,57 @@ class CartAddView(CreateView):
         return reverse("webapp:index")
 
 
-class CartView(ListView):
-    model = Cart
-    context_object_name = "cart_list"
+class CartView(TemplateView):
     template_name = "cart/cart_view.html"
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        cart = self.request.session.get("cart", {})
+
+        total = 0
+        cart_list = []
+        for product_id, qty in cart.items():
+            product = get_object_or_404(Product, pk=product_id)
+            total_price = product.price * qty
+            cart_data = {
+                "qty": qty,
+                "product": product,
+                "total_price": total_price
+            }
+            cart_list.append(cart_data)
+            total += total_price
+
         context = super().get_context_data(object_list=None, **kwargs)
-        context["total"] = Cart.get_full_total_price()
+        context["total"] = total
+        context["cart_list"] = cart_list
         context["form"] = OrderForm()
         return context
 
 
-class CartDeleteView(DeleteView):
-    model = Cart
-    success_url = reverse_lazy("webapp:cart")
+class CartDeleteView(View):
 
-    def get(self, request, *args, **kwargs):
-        return self.delete(request, *args, **kwargs)
+    def get(self, request, *args, pk, **kwargs):
+        product = get_object_or_404(Product, pk=pk)
+        cart = self.request.session.get("cart", {})
+        if str(product.pk) in cart:
+            cart.pop(str(product.pk))
+        self.request.session['cart'] = cart
+        return redirect("webapp:cart")
 
 
-class CartDeletePieceByPieceView(DeleteView):
-    model = Cart
-    form_class = CartForm
+class CartDeletePieceByPieceView(View):
 
-    def form_invalid(self, form):
-        return HttpResponseBadRequest(f"Некорректное значение")
-
-    def form_valid(self, form):
-        qty = form.cleaned_data['qty']
-        self.object.qty -= qty
-        if self.object.qty < 1:
-            self.object.delete()
+    def post(self, request, *args, pk, **kwargs):
+        form = CartForm(request.POST)
+        if form.is_valid():
+            qty = form.cleaned_data['qty']
         else:
-            self.object.save()
+            return HttpResponseBadRequest(f"Некорректное значение")
+
+        product = get_object_or_404(Product, pk=pk)
+        cart = self.request.session.get("cart", {})
+        if str(product.pk) in cart:
+            cart[str(product.pk)] -= qty
+        if cart[str(product.pk)] < 1:
+            cart.pop(str(product.pk))
+        self.request.session['cart'] = cart
         return redirect("webapp:cart")

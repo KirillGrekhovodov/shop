@@ -1,6 +1,6 @@
 from django import forms
 
-from webapp.models import Product, Cart, Order
+from webapp.models import Product, Order
 
 
 class SearchForm(forms.Form):
@@ -13,20 +13,28 @@ class ProductForm(forms.ModelForm):
         fields = "__all__"
 
 
-class CartForm(forms.ModelForm):
-    class Meta:
-        model = Cart
-        fields = ["qty"]
+class CartForm(forms.Form):
+    qty = forms.IntegerField(min_value=1)
 
 
 class OrderForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = Order
         fields = ["name", "phone", "address"]
 
     def clean(self):
         data = super().clean()
-        for item in Cart.objects.all():
-            if item.qty > item.product.amount:
-                raise forms.ValidationError(f"Товар {item.product.title} закончился")
+        cart = self.request.session.get('cart', {})
+        for product_id, qty in cart.items():
+            try:
+                product = Product.objects.get(pk=product_id)
+                if qty > product.amount:
+                    raise forms.ValidationError(f"Товар {product.title} закончился")
+            except Product.DoesNotExist:
+                raise forms.ValidationError(f"Один из товаров удален")
         return data

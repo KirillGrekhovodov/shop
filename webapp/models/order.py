@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -12,6 +13,11 @@ class Order(models.Model):
         related_name="orders",
         through="webapp.OrderProduct",
         through_fields=("order", "product"),
+    )
+    user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.RESTRICT,
+        null=True, blank=True
     )
 
     class Meta:

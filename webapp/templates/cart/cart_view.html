@@ -18,10 +18,10 @@
                 <td>{{ cart.product.title }}</td>
                 <td>{{ cart.product.price }}</td>
                 <td>{{ cart.qty }}</td>
-                <td>{{ cart.get_total_price }}</td>
-                <td><a href="{% url "webapp:delete_from_cart" cart.pk %}">Удалить полностью</a></td>
+                <td>{{ cart.total_price }}</td>
+                <td><a href="{% url "webapp:delete_from_cart" cart.product.pk %}">Удалить полностью</a></td>
             <td>
-                <form action="{% url "webapp:delete_from_cart_piece_by_piece" cart.pk %}" method="post">
+                <form action="{% url "webapp:delete_from_cart_piece_by_piece" cart.product.pk %}" method="post">
                     {% csrf_token %}
                     <input type="number" name="qty">
                     <button>Удалить</button>
