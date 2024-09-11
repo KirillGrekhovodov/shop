@@ -1,8 +1,8 @@
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views import View
-from django.views.generic import CreateView, ListView, DeleteView, TemplateView
+from django.views.generic import TemplateView
 
 from webapp.forms import CartForm, OrderForm
 from webapp.models import Product
